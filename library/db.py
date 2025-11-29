@@ -10,10 +10,10 @@ DATABASE_URL = URL.create(
     password=Config.DB_PASS,
     database=Config.DB_NAME
 )
-engine = create_engine(url=DATABASE_URL)
-Base = declarative_base()
-LocalSession = sessionmaker(engine)
 
+engine = create_engine(DATABASE_URL)
+Base = declarative_base()
+LocalSession = sessionmaker(bind=engine)
 
 def get_db():
-    return LocalSession()
+    db = LocalSession()

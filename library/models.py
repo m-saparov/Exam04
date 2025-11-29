@@ -4,7 +4,8 @@ from sqlalchemy import (
     String, 
     DateTime, Text, 
     ForeignKey,
-    Boolean
+    Boolean,
+    func
 )
 from sqlalchemy.orm import relationship
 from .db import Base
@@ -15,11 +16,10 @@ from .db import Base
 class Author(Base):
     __tablename__ = 'authors'
 
-    # auto increment -> primary_key=True 
-    id = Column('id', Integer, primary_key=True, nullable=False)
-    name = Column('name', String(length=100), nullable=False)
-    bio = Column('bio', Text, nullable=True)
-    created_at = Column('created_at', DateTime, default=datetime.now)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(100), nullable=False)
+    bio = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.now)
 
     books = relationship("Book", back_populates="author")
 
@@ -28,15 +28,15 @@ class Author(Base):
 class Book(Base):
     __tablename__ = 'books'
 
-    id = Column('id', Integer, primary_key=True, nullable=False)
-    title = Column('title', String(length=200), nullable=False)
-    author_id = Column('author_id', Integer, ForeignKey('authors.id', ondelete='CASCADE'))
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    title = Column(String(200), nullable=False)
+    author_id = Column(Integer, ForeignKey('authors.id', ondelete='CASCADE'))
 
-    published_year = Column('published_year', Integer)
-    isbn = Column('isbn', String(length=13), unique=True, nullable=True)
-    is_available = Column('is_available', Boolean, default=True)
-    created_at = Column('created_at', DateTime, default=datetime.now)
-    updated_at = Column('updated_at', DateTime, default=datetime.now, onupdate=datetime.now)
+    published_year = Column(Integer)
+    isbn = Column(String(13), unique=True, nullable=True)
+    is_available = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     author = relationship("Author", back_populates="books")
     borrows = relationship("Borrow", back_populates="book")
@@ -46,11 +46,11 @@ class Book(Base):
 class Student(Base):
     __tablename__ = 'students'
 
-    id = Column('id', Integer, primary_key=True, nullable=False)
-    full_name = Column('full_name', String(length=150), nullable=False)
-    email = Column('email', String(length=100), unique=True, nullable=False)
-    grade = Column('grade', String(length=20), nullable=True)
-    registered_at = Column('registered_at', DateTime, default=datetime.now)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    full_name = Column(String(150), nullable=False)
+    email = Column(String(100), unique=True, nullable=False)
+    grade = Column(String(20), nullable=True)
+    registered_at = Column(DateTime, default=datetime.now)
 
     borrows = relationship("Borrow", back_populates="student")
 
@@ -59,14 +59,13 @@ class Student(Base):
 class Borrow(Base):
     __tablename__ = "borrows"
 
-    id = Column(Integer, primary_key=True, nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     student_id = Column(Integer, ForeignKey("students.id", ondelete="CASCADE"))
     book_id = Column(Integer, ForeignKey("books.id", ondelete="CASCADE"))
     
     borrowed_at = Column(DateTime, default=datetime.now)
     due_date = Column(DateTime, default=lambda: datetime.now() + timedelta(days=14))
 
-    # returned_at — default None bo‘ladi
     returned_at = Column(DateTime, nullable=True)
 
     student = relationship("Student", back_populates="borrows")
