@@ -1,5 +1,4 @@
 from datetime import datetime
-from sqlalchemy import or_, not_, and_
 from .models import (
     Author, Book, Student, Borrow
 )
@@ -105,6 +104,50 @@ def delete_book(book_id: int) -> bool:
     if book:
         with get_db() as session:
             session.delete(book)
+            session.commit()
+        result = True
+
+    return result
+
+
+def create_student(full_name: str, email: str, grade: str = None) -> Student:
+    """Yangi talaba ro'yxatdan o'tkazish"""
+    student = Student(
+        full_name = full_name,
+        email = email,
+        grade = grade
+    )
+
+    with get_db() as session:
+        session.add(student)
+        session.commit()
+    
+    return student
+
+def get_student_by_id(student_id: int) -> Student | None:
+    """ID bo'yicha talabani olish"""
+    with get_db() as session:
+        student = session.query(Student).get(student_id)
+    
+    return student
+
+def get_all_students() -> list[Student]:
+    """Barcha talabalar ro'yxatini olish"""
+    with get_db() as session:
+        students = session.query(Student).all()
+    
+    return students
+
+def update_student_grade(student_id: int, grade: str) -> Student | None:
+    """Talaba sinfini yangilash"""
+    student = get_student_by_id(student_id)
+    result = False
+
+    if student:
+        with get_db() as session:
+            grade = grade if grade else student.grade
+            
+            session.add(student)
             session.commit()
         result = True
 
