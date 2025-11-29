@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from sqlalchemy import (
     Column, Integer, 
     String, 
@@ -9,10 +9,6 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 from .db import Base
 
-
-# 14 kun qo'shish uchun datetime kutubxonasidan timedelta() ishlatsak bo'larkan
-def default_due_date():
-    return datetime.now() + timedelta(days=14)
 
 
 # Author model
@@ -70,9 +66,7 @@ class Borrow(Base):
     book_id = Column(Integer, ForeignKey("books.id", ondelete="CASCADE"))
     
     borrowed_at = Column(DateTime, default=datetime.now)
-
-    # 14 kun qo'shish timedelta() kerak bo'larkan 
-    due_date = Column(DateTime, default=default_due_date)
+    due_date = Column(DateTime)
 
     # returned_at — default None bo‘ladi
     returned_at = Column(DateTime, nullable=True)
